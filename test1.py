@@ -40,17 +40,32 @@ expected_result = {
                                   'key3': 'value3', 'key4': 'value4'},
                 'level_3_key_3': 'value4'
             }
-        }
+        },
+        'level_1_key_4': 'level_1_value_4', # This was missing from the initial expected_result dict.
     },
     'top_level_key2': ['value1', 'value2', 'value3', 'value4'],
     'top_level_key3': 'value3'
 
 }
 
+import copy
 
 def merge_dicts(input_dict1, input_dict2):
     """This function recursively merges the two input dicts and returns the result"""
-    return
+    # We don't want to mutate any of the existing dicts, so make a copy.
+    new = copy.deepcopy(input_dict1)
+    def _merge(new, input_dict2):
+        for k in input_dict2:
+            if k in new:
+                if isinstance(new[k], dict) and isinstance(input_dict2[k], dict):
+                    _merge(new[k], input_dict2[k])
+                elif isinstance(new[k], list) and isinstance(input_dict2[k], list):
+                    new[k].extend(input_dict2[k])
+                    new[k] = sorted(set(new[k]))
+            else:
+                new.update({k: input_dict2[k]})
+        return new
+    return _merge(new, input_dict2)
 
 
 def main():
